@@ -1,6 +1,7 @@
 // !!!FILL IN YOUR CLIENT ID FROM YOUR APPLICATION CONSOLE:
 // https://developer.spotify.com/my-applications/#!/applications !!!
-const CLIENT_ID = 'YOUR_ID_HERE';
+
+const CLIENT_ID = "6a7514bb9d5042699203c0faf8bfac34";
 
 const getFromApi = function (endpoint, query = {}) {
   // You won't need to change anything in this function, but you will use this function 
@@ -27,11 +28,47 @@ const getFromApi = function (endpoint, query = {}) {
 let artist;
 
 const getArtist = function (name) {
+  const query = {
+      q: name,
+      limit: 1,
+      type: 'artist'
+  }
+  return getFromApi("search", query)
+    .then(item => {
+      artist = item.artists.items[0];
+      let endpoint = `artists/${artist.id}/related-artists`;
+      return getFromApi(endpoint);
+    })
+    .then( item => {
+          console.log(item); 
+          artist.related = item.artists;
+          let artistarr = [artist, ...artist.related]; 
+          const promiseArr = []; 
+          for (let i = 0; i < artistarr.length; i++ ){
+            let endpoint2 = `artists/${artistarr[i].id}/top-tracks/`;
+            promiseArr.push(getFromApi(endpoint2, {country: "US"})); 
+          }
+          return Promise.all(promiseArr);  
+    }) 
+    .then(responses => {
+      console.log(responses); 
+      for(let i = 0; i < responses.length; i++){
+          artist.tracks = responses[i].tracks; 
+      }
+      return artist; 
+    })
+    .catch(function(err){
+      console.log("Here is the error: " + err);
+    });
   // Edit me!
   // (Plan to call `getFromApi()` several times over the whole exercise from here!)
 };
 
 
+// getArtist.then(response => {
+//   artist = item.artists.items[0];
+//   return artist; 
+// });
 
 
 
