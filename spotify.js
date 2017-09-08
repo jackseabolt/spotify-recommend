@@ -40,9 +40,9 @@ const getArtist = function (name) {
       return getFromApi(endpoint);
     })
     .then( item => {
-          console.log(item); 
+          // console.log(item); 
           artist.related = item.artists;
-          let artistarr = [artist, ...artist.related]; 
+          let artistarr = artist.related; 
           const promiseArr = []; 
           for (let i = 0; i < artistarr.length; i++ ){
             let endpoint2 = `artists/${artistarr[i].id}/top-tracks/`;
@@ -50,11 +50,11 @@ const getArtist = function (name) {
           }
           return Promise.all(promiseArr);  
     }) 
-    .then(responses => {
-      console.log(responses); 
+    .then(responses => { 
       for(let i = 0; i < responses.length; i++){
-          artist.tracks = responses[i].tracks; 
+          artist.related[i].tracks = responses[i].tracks; 
       }
+      // console.log(tracks);
       return artist; 
     })
     .catch(function(err){
